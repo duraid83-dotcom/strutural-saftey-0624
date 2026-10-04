@@ -9,7 +9,7 @@ from flask import Flask, render_template, request
 
 from calculations import CALC_TYPES, K_PRESETS, ValidationError, calculate
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.', static_folder='.')
 
 
 @app.route("/")
