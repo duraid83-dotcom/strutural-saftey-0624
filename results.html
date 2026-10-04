@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Results · Structural Safety Calculator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <p class="eyebrow">Structural Safety Calculator</p>
+      <h1>Results</h1>
+      <p class="subtitle">{{ result.calc_title }} — {{ result.case_name }}</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <div class="result-hero">
+        <div>
+          <p class="kicker">Conclusion</p>
+          <h2 style="margin:0">{{ result.calc_title }}</h2>
+          <p>Material selection: {{ result.material }}</p>
+        </div>
+        <span class="status {{ 'safe' if result.safe else 'unsafe' }}">{{ result.status }}</span>
+      </div>
+      {% if result.fos is not none %}
+      <p>Governing factor of safety: <strong>{{ "%.4g"|format(result.fos) }}</strong>
+        (SAFE if FoS ≥ 1 against the allowable value you entered).</p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Input values</h2>
+      <table class="kv">
+        {% for name, value in result.inputs %}
+        <tr><th>{{ name }}</th><td>{{ value }}</td></tr>
+        {% endfor %}
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Formula used</h2>
+      <pre class="formula">{% for line in result.formula %}{{ line }}
+{% endfor %}</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Calculation steps</h2>
+      <ol class="steps">
+        {% for step in result.steps %}
+        <li>{{ step }}</li>
+        {% endfor %}
+      </ol>
+    </section>
+
+    <section class="panel">
+      <h2>Final numerical results</h2>
+      <table class="kv">
+        {% for item in result.outputs %}
+        <tr>
+          <th>{{ item.name }}</th>
+          <td>{{ item.value }} {{ item.unit }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </section>
+
+    <section class="panel assumptions">
+      <h2>Assumptions for this case</h2>
+      <ul>
+        {% for item in result.assumptions %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+      <p>This is an educational calculator. Do not use the numbers for construction without a qualified engineer and the relevant design code.</p>
+    </section>
+
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('index') }}">New calculation</a>
+      <a class="btn btn-secondary" href="{{ url_for('index') }}#about">About / Assumptions</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">Educational use only · SI units · Flask / Python</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Structural Safety Calculator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <p class="eyebrow">Civil engineering · educational tool</p>
+      <h1>Structural Safety Calculator</h1>
+      <p class="subtitle">Enter member data in SI units. The calculator converts units, applies the formula for the selected case, and reports stress, deformation, factor of safety, and a SAFE / UNSAFE conclusion.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% if errors %}
+    <div class="errors" role="alert">
+      <strong>Please correct the following:</strong>
+      <ul>
+        {% for field, message in errors.items() %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form class="panel" method="post" action="{{ url_for('calculate_view') }}" novalidate>
+      <h2>Calculation setup</h2>
+      <div class="grid">
+        <div class="field full">
+          <label for="calc_type">Type of structural calculation</label>
+          <select id="calc_type" name="calc_type">
+            {% for key, label in calc_types.items() %}
+            <option value="{{ key }}" {% if form.get('calc_type', 'axial') == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="material">Material <span class="hint">Prefills a typical E only. You can edit E and allowable stress.</span></label>
+          <select id="material" name="material">
+            {% set mat = form.get('material', 'steel') %}
+            <option value="steel" {% if mat == 'steel' %}selected{% endif %}>Steel</option>
+            <option value="aluminum" {% if mat == 'aluminum' %}selected{% endif %}>Aluminum</option>
+            <option value="concrete" {% if mat == 'concrete' %}selected{% endif %}>Concrete</option>
+            <option value="timber" {% if mat == 'timber' %}selected{% endif %}>Timber</option>
+            <option value="custom" {% if mat == 'custom' %}selected{% endif %}>Custom / other</option>
+          </select>
+        </div>
+      </div>
+
+      <h2 style="margin-top:1.2rem">Input data</h2>
+      <div class="grid">
+
+        <div class="field full" id="group-beam-load" data-group="group-beam-load">
+          <label for="beam_load_type">Beam load case</label>
+          <select id="beam_load_type" name="beam_load_type">
+            <option value="point_midspan" {% if form.get('beam_load_type', 'point_midspan') == 'point_midspan' %}selected{% endif %}>Simply supported, concentrated load at midspan</option>
+            <option value="udl" {% if form.get('beam_load_type') == 'udl' %}selected{% endif %}>Simply supported, uniform load over the full span</option>
+          </select>
+        </div>
+
+        <div class="field full" id="group-shear-case" data-group="group-shear-case">
+          <label for="shear_case">Shear stress definition</label>
+          <select id="shear_case" name="shear_case">
+            <option value="average" {% if form.get('shear_case', 'average') == 'average' %}selected{% endif %}>Average τ = V / A</option>
+            <option value="rectangle" {% if form.get('shear_case') == 'rectangle' %}selected{% endif %}>Rectangular beam, maximum τ = 1.5 V / A</option>
+            <option value="circular" {% if form.get('shear_case') == 'circular' %}selected{% endif %}>Solid circular section, maximum τ = 4V / (3A)</option>
+          </select>
+        </div>
+
+        <div class="field" id="group-force" data-group="group-force">
+          <label for="force"><span id="force-label-text">Applied load P</span></label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="force" name="force" value="{{ form.get('force', '') }}" required>
+            <select class="unit" name="force_unit" aria-label="Force unit">
+              {% set fu = form.get('force_unit', 'kN') %}
+              <option value="kN" {% if fu == 'kN' %}selected{% endif %}>kN</option>
+              <option value="N" {% if fu == 'N' %}selected{% endif %}>N</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field hidden" id="beam-udl-wrap">
+          <label for="udl">Uniform load w</label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="udl" name="udl" value="{{ form.get('udl', '') }}">
+            <select class="unit" name="udl_unit" aria-label="UDL unit">
+              {% set wu = form.get('udl_unit', 'kN/m') %}
+              <option value="kN/m" {% if wu == 'kN/m' %}selected{% endif %}>kN/m</option>
+              <option value="N/m" {% if wu == 'N/m' %}selected{% endif %}>N/m</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" id="group-area" data-group="group-area">
+          <label for="area">Cross-sectional area A</label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="area" name="area" value="{{ form.get('area', '') }}">
+            <select class="unit" name="area_unit" aria-label="Area unit">
+              {% set au = form.get('area_unit', 'mm2') %}
+              <option value="mm2" {% if au == 'mm2' %}selected{% endif %}>mm²</option>
+              <option value="m2" {% if au == 'm2' %}selected{% endif %}>m²</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" id="group-net-area" data-group="group-net-area">
+          <label for="net_area">Net area A_net <span class="hint">Optional. Leave blank to use gross area.</span></label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="net_area" name="net_area" value="{{ form.get('net_area', '') }}">
+            <span class="hint" style="align-self:center">same unit as A</span>
+          </div>
+        </div>
+
+        <div class="field" id="group-length" data-group="group-length">
+          <label for="length">Length / span L <span class="hint">Optional for axial/tension elongation. Required for compression and beams.</span></label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="length" name="length" value="{{ form.get('length', '') }}">
+            <select class="unit" name="length_unit" aria-label="Length unit">
+              {% set lu = form.get('length_unit', 'm') %}
+              <option value="m" {% if lu == 'm' %}selected{% endif %}>m</option>
+              <option value="mm" {% if lu == 'mm' %}selected{% endif %}>mm</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" id="group-e" data-group="group-e">
+          <label for="youngs_modulus">Young's modulus E <span class="hint">Optional for axial/tension strain. Required for compression and beams.</span></label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="youngs_modulus" name="youngs_modulus" value="{{ form.get('youngs_modulus', '200') }}">
+            <select class="unit" id="e_unit" name="e_unit" aria-label="E unit">
+              {% set eu = form.get('e_unit', 'GPa') %}
+              <option value="GPa" {% if eu == 'GPa' %}selected{% endif %}>GPa</option>
+              <option value="MPa" {% if eu == 'MPa' %}selected{% endif %}>MPa</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" id="group-allowable" data-group="group-allowable">
+          <label for="allowable_stress"><span id="allowable-label-text">Allowable stress σ_allow</span></label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="allowable_stress" name="allowable_stress" value="{{ form.get('allowable_stress', '') }}" required>
+            <span class="unit" style="display:flex;align-items:center;justify-content:center;background:#f0f3f2;border:1px solid #b7c3c8;border-radius:8px;">MPa</span>
+          </div>
+        </div>
+
+        <div class="field" id="group-k" data-group="group-k">
+          <label for="k_factor">Effective-length factor K</label>
+          <select id="k_factor" name="k_factor">
+            {% set ksel = form.get('k_factor', '1.0') %}
+            {% for key, (label, _val) in k_presets.items() %}
+            <option value="{{ key }}" {% if ksel == key %}selected{% endif %}>K = {{ key if key != 'custom' else 'custom' }} — {{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field hidden" id="k-custom-wrap">
+          <label for="k_custom">Custom K</label>
+          <input type="number" step="any" min="0" id="k_custom" name="k_custom" value="{{ form.get('k_custom', '') }}">
+        </div>
+
+        <div class="field" id="group-inertia" data-group="group-inertia">
+          <label for="inertia">Second moment of area I</label>
+          <div class="with-unit">
+            <input type="number" step="any" min="0" id="inertia" name="inertia" value="{{ form.get('inertia', '') }}">
+            <select class="unit" name="inertia_unit" aria-label="I unit">
+              {% set iu = form.get('inertia_unit', 'mm4') %}
+              <option value="mm4" {% if iu == 'mm4' %}selected{% endif %}>mm⁴</option>
+              <option value="m4" {% if iu == 'm4' %}selected{% endif %}>m⁴</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field full" id="group-beam-section" data-group="group-beam-section">
+          <label for="beam_section">Beam cross-section</label>
+          <select id="beam_section" name="beam_section">
+            <option value="rectangle" {% if form.get('beam_section', 'rectangle') == 'rectangle' %}selected{% endif %}>Rectangle (width b × height h)</option>
+            <option value="custom" {% if form.get('beam_section') == 'custom' %}selected{% endif %}>Custom (enter I and c)</option>
+          </select>
+        </div>
+
+        <div class="field hidden" id="group-dim-unit">
+          <label for="dim_unit">Section length unit <span class="hint">Used for b, h, and c</span></label>
+          <select id="dim_unit" name="dim_unit">
+            {% set du = form.get('dim_unit', 'mm') %}
+            <option value="mm" {% if du == 'mm' %}selected{% endif %}>mm</option>
+            <option value="m" {% if du == 'm' %}selected{% endif %}>m</option>
+          </select>
+        </div>
+
+        <div class="field full hidden" id="beam-rect-wrap">
+          <div class="grid">
+            <div class="field">
+              <label for="width">Width b</label>
+              <input type="number" step="any" min="0" id="width" name="width" value="{{ form.get('width', '') }}">
+            </div>
+            <div class="field">
+              <label for="height">Height h</label>
+              <input type="number" step="any" min="0" id="height" name="height" value="{{ form.get('height', '') }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="field hidden" id="beam-custom-wrap">
+          <label for="section_c">Distance c to extreme fibre</label>
+          <input type="number" step="any" min="0" id="section_c" name="section_c" value="{{ form.get('section_c', '') }}">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Calculate</button>
+        <button class="btn btn-secondary" type="reset">Reset</button>
+      </div>
+    </form>
+
+    <section class="panel about" id="about">
+      <h2>About / Assumptions</h2>
+      <p>This is an <strong>educational structural engineering calculator</strong> for a university project. It is not a design code checker and must not be used for real construction decisions.</p>
+      <p>Results depend entirely on the values you type and on the assumptions of each case:</p>
+      <ul>
+        <li>Units are converted to SI internally (N, m, Pa) before any formula is applied.</li>
+        <li>SAFE means the computed stress (or load) does not exceed the allowable value you entered (factor of safety ≥ 1). If you enter a yield stress as “allowable”, FoS is against yield, not against a code allowable.</li>
+        <li>Axial and tension cases use σ = P / A. Buckling is not included unless you choose Compression Member.</li>
+        <li>Compression uses both crushing (σ_allow × A) and Euler buckling P_cr = π²EI / (KL)². Euler assumes a perfectly straight, elastic column.</li>
+        <li>Beam cases are simply supported, Euler–Bernoulli (no shear deflection), with either a midspan point load or a full-span UDL.</li>
+        <li>Self-weight, connections, residual stresses, and second-order effects are not modelled unless you include them in the loads.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">Educational use only · SI units · Flask / Python</div>
+  </footer>
+  <script src="{{ url_for('static', filename='form.js') }}"></script>
+</body>
+</html>
