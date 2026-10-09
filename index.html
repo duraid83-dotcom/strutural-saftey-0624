@@ -343,8 +343,8 @@
             <div class="kpi-value" style="color: #34d399;">Python 3.12</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-title">Exchange Rate</div>
-            <div class="kpi-value">1 USD = 35.0 TRY</div>
+            <div class="kpi-title">Live Exchange Rate</div>
+            <div class="kpi-value" id="kpiRate">Fetching API...</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-title">Safety Status</div>
@@ -471,7 +471,8 @@
                 const volume_cm3 = (A_mm2 * (L_m * 1000)) / 1000;
                 const mass_kg = (volume_cm3 * 7.85) / 1000;
                 let cost_usd = mass_kg * 2.85;
-                let cost_try = cost_usd * 35.0;
+                let live_rate = 35.0; // افتراضي
+                let cost_try = cost_usd * live_rate;
 
                 document.getElementById('valVolume').innerText = volume_cm3.toFixed(2);
                 document.getElementById('valMass').innerText = mass_kg.toFixed(2);
@@ -484,7 +485,30 @@
                         document.getElementById('valCost').innerText = '$' + cost_usd.toFixed(2) + ' USD';
                     }
                 }
-                updateCurrency();
+
+                // API لجلب سعر الصرف الحقيقي المباشر
+                async function fetchLiveExchangeRate() {
+                    try {
+                        let response = await fetch('https://open.er-api.com/v6/latest/USD');
+                        let data = await response.json();
+                        live_rate = data.rates.TRY; 
+                        document.getElementById('kpiRate').innerText = `1 USD = ${live_rate.toFixed(2)} TRY`;
+                        
+                        // تحديث أسعار الكتالوج تلقائياً
+                        document.getElementById('pMat1').innerText = `$2.50 / ₺${(2.50 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat2').innerText = `$4.80 / ₺${(4.80 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat3').innerText = `$8.20 / ₺${(8.20 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat4').innerText = `$35.00 / ₺${(35.00 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat5').innerText = `$1.90 / ₺${(1.90 * live_rate).toFixed(1)}`;
+
+                        cost_try = cost_usd * live_rate;
+                        updateCurrency();
+                    } catch (error) {
+                        document.getElementById('kpiRate').innerText = `1 USD = 35.0 TRY (Static)`;
+                        updateCurrency();
+                    }
+                }
+                fetchLiveExchangeRate();
             </script>
         {% else %}
             <div style="text-align: center; padding: 60px 20px; color: var(--text-sub);">
@@ -492,6 +516,25 @@
                 <div style="font-size: 14px; font-weight: 600;">System Ready for Simulation</div>
                 <div style="font-size: 12px; margin-top: 5px;">Enter structural parameters on the left panel to trigger FEA solver.</div>
             </div>
+            <script>
+                async function fetchLiveExchangeRateOnly() {
+                    try {
+                        let response = await fetch('https://open.er-api.com/v6/latest/USD');
+                        let data = await response.json();
+                        let live_rate = data.rates.TRY; 
+                        document.getElementById('kpiRate').innerText = `1 USD = ${live_rate.toFixed(2)} TRY`;
+                        
+                        document.getElementById('pMat1').innerText = `$2.50 / ₺${(2.50 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat2').innerText = `$4.80 / ₺${(4.80 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat3').innerText = `$8.20 / ₺${(8.20 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat4').innerText = `$35.00 / ₺${(35.00 * live_rate).toFixed(1)}`;
+                        document.getElementById('pMat5').innerText = `$1.90 / ₺${(1.90 * live_rate).toFixed(1)}`;
+                    } catch (e) {
+                        document.getElementById('kpiRate').innerText = `1 USD = 35.0 TRY`;
+                    }
+                }
+                fetchLiveExchangeRateOnly();
+            </script>
         {% endif %}
     </div>
 
@@ -506,15 +549,15 @@
                     <th id="thDesc">Material Description</th>
                     <th>E (GPa)</th>
                     <th>σy (MPa)</th>
-                    <th id="thPrice">Est. Price ($ / ₺)</th>
+                    <th id="thPrice">Live Price ($ / ₺)</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td><b>MAT-01</b></td><td>UNS K02600 / 1.0038</td><td>Structural Steel (A36)</td><td>200</td><td>250</td><td>$2.50 / ₺87.5</td></tr>
-                <tr><td><b>MAT-02</b></td><td>UNS A96061 / 3.3211</td><td>Aluminum Alloy (6061-T6)</td><td>70</td><td>50</td><td>$4.80 / ₺168.0</td></tr>
-                <tr><td><b>MAT-03</b></td><td>UNS C36000 / 2.0375</td><td>Commercial Brass (C360)</td><td>100</td><td>120</td><td>$8.20 / ₺87.5</td></tr>
-                <tr><td><b>MAT-04</b></td><td>UNS R56400 / 3.7165</td><td>Titanium Alloy (Grade 5)</td><td>110</td><td>800</td><td>$35.00 / ₺1225.0</td></tr>
-                <tr><td><b>MAT-05</b></td><td>UNS F10008 / 0.6025</td><td>Gray Cast Iron (Class 40)</td><td>160</td><td>200</td><td>$1.90 / ₺66.5</td></tr>
+                <tr><td><b>MAT-01</b></td><td>UNS K02600 / 1.0038</td><td>Structural Steel (A36)</td><td>200</td><td>250</td><td id="pMat1">$2.50 / ₺87.5</td></tr>
+                <tr><td><b>MAT-02</b></td><td>UNS A96061 / 3.3211</td><td>Aluminum Alloy (6061-T6)</td><td>70</td><td>50</td><td id="pMat2">$4.80 / ₺168.0</td></tr>
+                <tr><td><b>MAT-03</b></td><td>UNS C36000 / 2.0375</td><td>Commercial Brass (C360)</td><td>100</td><td>120</td><td id="pMat3">$8.20 / ₺287.0</td></tr>
+                <tr><td><b>MAT-04</b></td><td>UNS R56400 / 3.7165</td><td>Titanium Alloy (Grade 5)</td><td>110</td><td>800</td><td id="pMat4">$35.00 / ₺1225.0</td></tr>
+                <tr><td><b>MAT-05</b></td><td>UNS F10008 / 0.6025</td><td>Gray Cast Iron (Class 40)</td><td>160</td><td>200</td><td id="pMat5">$1.90 / ₺66.5</td></tr>
             </tbody>
         </table>
 
@@ -526,7 +569,7 @@
             </p>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <span class="badge">🐍 Python 3.12 (Flask Engine)</span>
-                <span class="badge">⚡ Client JS Calculations</span>
+                <span class="badge">⚡ Live API Currency Sync</span>
                 <span class="badge">🎨 Enterprise Dark UI</span>
                 <span class="badge">📊 Chart.js FEA Visualizer</span>
                 <span class="badge">☁️ Vercel Cloud Hosting</span>
