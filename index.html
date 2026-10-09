@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Structural Analysis & Visualization Lab</title>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; }
         .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -14,8 +16,7 @@
         .alarm { background-color: #ffdddd; color: #d8000c; border: 1px solid #d8000c; padding: 15px; border-radius: 5px; font-weight: bold; text-align: center; margin-top: 15px; }
         .safe { background-color: #ddffdd; color: #4F8A10; border: 1px solid #4F8A10; padding: 15px; border-radius: 5px; font-weight: bold; text-align: center; margin-top: 15px; }
         .results { margin-top: 20px; background: #eef; padding: 15px; border-radius: 5px; }
-        .plot { text-align: center; margin-top: 20px; }
-        .plot img { max-width: 100%; }
+        .plot-box { margin-top: 25px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -23,19 +24,19 @@
     <h2>Circular Member Structural Safety Calculator</h2>
     <form method="POST">
         <label>Axial Force P (kN):</label>
-        <input type="number" step="any" name="P" required placeholder="e.g. 50">
+        <input type="number" step="any" name="P" required placeholder="e.g. 50" value="{{ results.P if results }}">
         
         <label>Length L (m):</label>
-        <input type="number" step="any" name="L" required placeholder="e.g. 2.0">
+        <input type="number" step="any" name="L" required placeholder="e.g. 2.0" value="{{ results.L if results }}">
         
         <label>Diameter D (mm):</label>
-        <input type="number" step="any" name="D" required placeholder="e.g. 20">
+        <input type="number" step="any" name="D" required placeholder="e.g. 20" value="{{ results.D if results }}">
         
         <label>Modulus of Elasticity E (GPa):</label>
-        <input type="number" step="any" name="E" required placeholder="e.g. 200">
+        <input type="number" step="any" name="E" required placeholder="e.g. 200" value="{{ results.E if results }}">
         
         <label>Yield Strength σy (MPa):</label>
-        <input type="number" step="any" name="sigma_y" required placeholder="e.g. 250">
+        <input type="number" step="any" name="sigma_y" required placeholder="e.g. 250" value="{{ results.sigma_y if results }}">
         
         <button type="submit">Calculate & Visualize</button>
     </form>
@@ -55,12 +56,54 @@
             <p><b>Axial Deformation (ΔL):</b> {{ results.delta_L }} mm</p>
         </div>
 
-        {% if plot_url %}
-        <div class="plot">
-            <h3>Deformation Visual Output</h3>
-            <img src="data:image/png;base64,{{ plot_url }}" alt="Deformation Graph">
+        <div class="plot-box">
+            <h3 style="text-align: center;">Deformation Visualization</h3>
+            <canvas id="deformationChart"></canvas>
         </div>
-        {% endif %}
+
+        <script>
+            const originalLength = {{ results.L }} * 1000;
+            const deltaL = {{ results.delta_L }};
+            const deformedLength = originalLength + deltaL;
+            const isAlarm = {{ 'true' if results.alarm else 'false' }};
+
+            const ctx = document.getElementById('deformationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Original Member (mm)',
+                            data: [{x: 0, y: 1}, {x: originalLength, y: 1}],
+                            borderColor: 'gray',
+                            borderWidth: 6,
+                            showLine: true
+                        },
+                        {
+                            label: 'Deformed Member (mm)',
+                            data: [{x: 0, y: 0.5}, {x: deformedLength, y: 0.5}],
+                            borderColor: isAlarm ? 'red' : 'green',
+                            borderWidth: 6,
+                            showLine: true
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: { display: true, text: 'Member Length (mm)' }
+                        },
+                        y: {
+                            display: false,
+                            min: 0,
+                            max: 1.5
+                        }
+                    }
+                }
+            });
+        </script>
     {% endif %}
 </div>
 </body>
