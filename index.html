@@ -3,65 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Structural Analysis & Visualization Lab</title>
+    <title>A7 Enterprise Suite | Structural & Financial Analysis</title>
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; }
-        .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; margin-top: 15px; font-size: 16px; border-radius: 5px; cursor: pointer; }
-        .alarm { background-color: #ffdddd; color: #d8000c; border: 1px solid #d8000c; padding: 15px; border-radius: 5px; font-weight: bold; text-align: center; margin-top: 15px; }
-        .safe { background-color: #ddffdd; color: #4F8A10; border: 1px solid #4F8A10; padding: 15px; border-radius: 5px; font-weight: bold; text-align: center; margin-top: 15px; }
-        .results { margin-top: 20px; background: #eef; padding: 15px; border-radius: 5px; }
-        .plot-box { margin-top: 25px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 5px; }
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --border-color: #cbd5e1;
+        }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; 
+            padding: 30px 15px; 
+            background-color: var(--bg-color); 
+            color: var(--text-dark);
+        }
+        .container { 
+            max-width: 840px; 
+            margin: auto; 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .header-tag {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .controls { display: flex; gap: 10px; }
+        .controls select {
+            padding: 6px 10px; font-size: 12px; font-weight: 600;
+            border-radius: 6px; border: 1px solid var(--border-color); background: #fff; cursor: pointer;
+        }
+        h2 { margin: 0 0 6px 0; color: var(--primary); font-size: 26px; font-weight: 800; text-align: center; }
+        p.subtitle { margin: 0 0 25px 0; color: #64748b; font-size: 13px; text-align: center; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: span 2; }
+        label { font-weight: 600; font-size: 12px; color: #334155; margin-bottom: 5px; }
+        input, select { 
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); 
+            border-radius: 6px; box-sizing: border-box; font-size: 13px; background-color: #f8fafc;
+        }
+        button.submit-btn { 
+            width: 100%; padding: 12px; background-color: var(--accent); color: white; 
+            border: none; margin-top: 20px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer;
+        }
+        button.submit-btn:hover { background-color: #1d4ed8; }
+        .alarm { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 14px; border-radius: 6px; font-weight: 700; text-align: center; margin-top: 20px; }
+        .safe { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 14px; border-radius: 6px; font-weight: 700; text-align: center; margin-top: 20px; }
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .results-card { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .results-card h3 { margin-top: 0; font-size: 14px; color: var(--primary); border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
+        .result-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12px; }
+        .result-item:last-child { border-bottom: none; }
+        .plot-box { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        .data-table th, .data-table td { border: 1px solid var(--border-color); padding: 8px; text-align: left; }
+        .data-table th { background-color: #f1f5f9; color: var(--primary); }
+        .catalog-section { margin-top: 25px; padding-top: 15px; border-top: 2px solid var(--border-color); }
+        .catalog-section h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 14px; }
+        
+        /* Tech Badges */
+        .tech-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .badge { background: #e2e8f0; color: #334155; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+        .badge-py { background: #fef08a; color: #854d0e; }
+        .badge-js { background: #fef08a; color: #713f12; }
+        .badge-html { background: #ffedd5; color: #9a3412; }
+        .badge-cloud { background: #e0f2fe; color: #0369a1; }
+
+        .footer { text-align: center; margin-top: 25px; font-size: 11px; color: #64748b; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>Circular Member Structural Safety Calculator</h2>
+    <div class="top-bar">
+        <span class="header-tag">A7 Enterprise Suite</span>
+        <div class="controls">
+            <select id="currSelect" onchange="updateCurrency()">
+                <option value="TRY">₺ TRY (Lira)</option>
+                <option value="USD">$ USD (Dollar)</option>
+            </select>
+            <select id="langSelect" onchange="switchLanguage()">
+                <option value="en">English 🇬🇧</option>
+                <option value="tr">Türkçe 🇹🇷</option>
+                <option value="ar">العربية 🇸🇦</option>
+            </select>
+        </div>
+    </div>
+
+    <h2 id="txtTitle">Structural Safety & Cost Calculator</h2>
+    <p class="subtitle" id="txtSub">Professional Structural Analysis & Multi-Currency Cost Estimator</p>
+
     <form method="POST">
-        <label>Axial Force P (kN):</label>
-        <input type="number" step="any" name="P" required placeholder="e.g. 50" value="{{ results.P if results }}">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label id="lblMatSelect">Select Material Preset (UNS Standard ID):</label>
+                <select id="materialSelect" onchange="autoFillMaterial()">
+                    <option value="custom">-- Custom Material Properties --</option>
+                    <option value="mat1">MAT-01 | UNS K02600 / EN 1.0038 (Structural Steel A36)</option>
+                    <option value="mat2">MAT-02 | UNS A96061 / EN 3.3211 (Aluminum 6061-T6)</option>
+                    <option value="mat3">MAT-03 | UNS C36000 / EN 2.0375 (Commercial Brass C360)</option>
+                    <option value="mat4">MAT-04 | UNS R56400 / EN 3.7165 (Titanium Grade 5)</option>
+                    <option value="mat5">MAT-05 | UNS F10008 / EN 0.6025 (Gray Cast Iron Class 40)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label id="lblP">Axial Force P (kN):</label>
+                <input type="number" step="any" name="P" required placeholder="e.g. 50" value="{{ results.P if results }}">
+            </div>
+            <div class="form-group">
+                <label id="lblL">Member Length L (m):</label>
+                <input type="number" step="any" name="L" required placeholder="e.g. 2.0" value="{{ results.L if results }}">
+            </div>
+            <div class="form-group">
+                <label id="lblD">Diameter D (mm):</label>
+                <input type="number" step="any" name="D" required placeholder="e.g. 20" value="{{ results.D if results }}">
+            </div>
+            <div class="form-group">
+                <label id="lblE">Modulus of Elasticity E (GPa):</label>
+                <input type="number" step="any" id="inputE" name="E" required placeholder="e.g. 200" value="{{ results.E if results }}">
+            </div>
+            <div class="form-group full-width">
+                <label id="lblSigmaY">Yield Strength σy (MPa):</label>
+                <input type="number" step="any" id="inputSigmaY" name="sigma_y" required placeholder="e.g. 250" value="{{ results.sigma_y if results }}">
+            </div>
+        </div>
         
-        <label>Length L (m):</label>
-        <input type="number" step="any" name="L" required placeholder="e.g. 2.0" value="{{ results.L if results }}">
-        
-        <label>Diameter D (mm):</label>
-        <input type="number" step="any" name="D" required placeholder="e.g. 20" value="{{ results.D if results }}">
-        
-        <label>Modulus of Elasticity E (GPa):</label>
-        <input type="number" step="any" name="E" required placeholder="e.g. 200" value="{{ results.E if results }}">
-        
-        <label>Yield Strength σy (MPa):</label>
-        <input type="number" step="any" name="sigma_y" required placeholder="e.g. 250" value="{{ results.sigma_y if results }}">
-        
-        <button type="submit">Calculate & Visualize</button>
+        <button type="submit" class="submit-btn" id="btnSubmit">Execute Structural & Financial Analysis</button>
     </form>
 
     {% if results %}
         {% if results.alarm %}
-            <div class="alarm">🚨 ALARM: YIELDING DETECTED! STRUCTURAL FAILURE IMMINENT! 🚨</div>
+            <div class="alarm" id="txtAlarm">🚨 ALARM: YIELDING DETECTED! STRUCTURAL FAILURE IMMINENT! 🚨</div>
         {% else %}
-            <div class="safe">✅ Structure is Safe.</div>
+            <div class="safe" id="txtSafe">✅ Structure is Safe under Design Axial Load.</div>
         {% endif %}
 
-        <div class="results">
-            <h3>Calculated Mechanical Responses:</h3>
-            <p><b>Cross-sectional Area (A):</b> {{ results.A }} mm²</p>
-            <p><b>Axial Stress (σ):</b> {{ results.sigma }} MPa</p>
-            <p><b>Axial Strain (ε):</b> {{ results.epsilon }} mm/mm</p>
-            <p><b>Axial Deformation (ΔL):</b> {{ results.delta_L }} mm</p>
+        <div class="results-grid">
+            <div class="results-card">
+                <h3 id="txtMechHeading">Mechanical Responses</h3>
+                <div class="result-item"><span id="txtArea">Area (A):</span> <strong>{{ results.A }} mm²</strong></div>
+                <div class="result-item"><span id="txtStress">Axial Stress (σ):</span> <strong>{{ results.sigma }} MPa</strong></div>
+                <div class="result-item"><span id="txtStrain">Axial Strain (ε):</span> <strong>{{ results.epsilon }} mm/mm</strong></div>
+                <div class="result-item"><span id="txtDef">Deformation (ΔL):</span> <strong>{{ results.delta_L }} mm</strong></div>
+                <div class="result-item"><span id="txtSF">Safety Factor (FOS):</span> <strong id="valFOS">0.00</strong></div>
+            </div>
+
+            <div class="results-card">
+                <h3 id="txtCostHeading">Cost & Mass Estimate</h3>
+                <div class="result-item"><span id="txtVol">Total Volume (V):</span> <strong id="valVolume">0.00</strong> cm³</div>
+                <div class="result-item"><span id="txtDensity">Est. Density:</span> <strong>7,850 kg/m³</strong></div>
+                <div class="result-item"><span id="txtMass">Total Mass (W):</span> <strong id="valMass">0.00</strong> kg</div>
+                <div class="result-item"><span id="txtCost">Est. Cost:</span> <strong id="valCost" style="color: #2563eb;">₺0.00</strong></div>
+            </div>
         </div>
 
         <div class="plot-box">
-            <h3 style="text-align: center;">Deformation Visualization</h3>
+            <h3 style="text-align: center; margin-top: 0; font-size: 14px; color: #334155;" id="txtGraphTitle">2D Deformation Profile</h3>
             <canvas id="deformationChart"></canvas>
         </div>
 
         <script>
+            // Plot Logic
             const originalLength = {{ results.L }} * 1000;
             const deltaL = {{ results.delta_L }};
             const deformedLength = originalLength + deltaL;
@@ -72,39 +197,185 @@
                 type: 'line',
                 data: {
                     datasets: [
-                        {
-                            label: 'Original Member (mm)',
-                            data: [{x: 0, y: 1}, {x: originalLength, y: 1}],
-                            borderColor: 'gray',
-                            borderWidth: 6,
-                            showLine: true
-                        },
-                        {
-                            label: 'Deformed Member (mm)',
-                            data: [{x: 0, y: 0.5}, {x: deformedLength, y: 0.5}],
-                            borderColor: isAlarm ? 'red' : 'green',
-                            borderWidth: 6,
-                            showLine: true
-                        }
+                        { label: 'Original', data: [{x: 0, y: 1}, {x: originalLength, y: 1}], borderColor: '#94a3b8', borderWidth: 6, showLine: true },
+                        { label: 'Deformed', data: [{x: 0, y: 0.5}, {x: deformedLength, y: 0.5}], borderColor: isAlarm ? '#dc2626' : '#16a34a', borderWidth: 6, showLine: true }
                     ]
                 },
                 options: {
                     scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
-                            title: { display: true, text: 'Member Length (mm)' }
-                        },
-                        y: {
-                            display: false,
-                            min: 0,
-                            max: 1.5
-                        }
+                        x: { type: 'linear', position: 'bottom', title: { display: true, text: 'Member Length (mm)' } },
+                        y: { display: false, min: 0, max: 1.5 }
                     }
                 }
             });
+
+            // Financial & Mass Computations
+            const A_mm2 = {{ results.A }};
+            const L_m = {{ results.L }};
+            const sigma = Math.abs({{ results.sigma }});
+            const sigma_y = {{ results.sigma_y }};
+            
+            // FOS Calculation
+            const fos = sigma > 0 ? (sigma_y / sigma) : 0;
+            document.getElementById('valFOS').innerText = fos.toFixed(2) + (fos >= 1 ? ' (Safe)' : ' (Unsafe)');
+            document.getElementById('valFOS').style.color = fos >= 1 ? '#16a34a' : '#dc2626';
+
+            const volume_cm3 = (A_mm2 * (L_m * 1000)) / 1000;
+            const density_g_cm3 = 7.85; 
+            const mass_kg = (volume_cm3 * density_g_cm3) / 1000;
+            
+            let cost_usd = mass_kg * 2.85;
+            let cost_try = cost_usd * 35.0;
+
+            document.getElementById('valVolume').innerText = volume_cm3.toFixed(2);
+            document.getElementById('valMass').innerText = mass_kg.toFixed(2);
+
+            function updateCurrency() {
+                const curr = document.getElementById('currSelect').value;
+                if(curr === 'TRY') {
+                    document.getElementById('valCost').innerText = '₺' + cost_try.toFixed(2) + ' TRY';
+                } else {
+                    document.getElementById('valCost').innerText = '$' + cost_usd.toFixed(2) + ' USD';
+                }
+            }
+            updateCurrency();
         </script>
     {% endif %}
+
+    <!-- Material Catalog Section -->
+    <div class="catalog-section">
+        <h4 id="txtCatalogHeading">📚 Enterprise Material Specification Catalog (UNS / EN Standards)</h4>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Grade ID</th>
+                    <th>UNS / EN Standard</th>
+                    <th id="thDesc">Material Description</th>
+                    <th>E (GPa)</th>
+                    <th>σy (MPa)</th>
+                    <th id="thPrice">Est. Price ($ / ₺)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><b>MAT-01</b></td><td>UNS K02600 / 1.0038</td><td>Structural Steel (A36)</td><td>200</td><td>250</td><td>$2.50 / ₺87.5</td></tr>
+                <tr><td><b>MAT-02</b></td><td>UNS A96061 / 3.3211</td><td>Aluminum Alloy (6061-T6)</td><td>70</td><td>50</td><td>$4.80 / ₺168.0</td></tr>
+                <tr><td><b>MAT-03</b></td><td>UNS C36000 / 2.0375</td><td>Commercial Brass (C360)</td><td>100</td><td>120</td><td>$8.20 / ₺287.0</td></tr>
+                <tr><td><b>MAT-04</b></td><td>UNS R56400 / 3.7165</td><td>Titanium Alloy (Grade 5)</td><td>110</td><td>800</td><td>$35.00 / ₺1225.0</td></tr>
+                <tr><td><b>MAT-05</b></td><td>UNS F10008 / 0.6025</td><td>Gray Cast Iron (Class 40)</td><td>160</td><td>200</td><td>$1.90 / ₺66.5</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tech Stack & Workflow Section -->
+    <div class="catalog-section">
+        <h4 id="txtWorkflowHeading">⚙️ Tech Stack & System Architecture</h4>
+        <p style="font-size: 12px; color: #475569; line-height: 1.6; margin-bottom: 8px;" id="txtWorkflowContent">
+            Built using a full-stack engineering workflow: Python Flask for math engines, client-side JavaScript for calculations & Charts, version-controlled via GitHub, and auto-deployed on Vercel.
+        </p>
+        <div class="tech-badges">
+            <span class="badge badge-py">🐍 Python 3 (Flask Backend)</span>
+            <span class="badge badge-js">⚡ JavaScript (ES6+ Engine)</span>
+            <span class="badge badge-html">🎨 HTML5 / CSS3 Responsive UI</span>
+            <span class="badge">📊 Chart.js (2D Visualizer)</span>
+            <span class="badge badge-cloud">☁️ Vercel Serverless Hosting</span>
+            <span class="badge">🐙 GitHub CI/CD Pipeline</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        A7 Engineering Group © 2026 — Multi-Language FEA & Structural Safety Calculator
+    </div>
 </div>
+
+<script>
+    function autoFillMaterial() {
+        const mat = document.getElementById('materialSelect').value;
+        const eInput = document.getElementById('inputE');
+        const sigmaInput = document.getElementById('inputSigmaY');
+
+        if(mat === 'mat1') { eInput.value = 200; sigmaInput.value = 250; }
+        else if(mat === 'mat2') { eInput.value = 70; sigmaInput.value = 50; }
+        else if(mat === 'mat3') { eInput.value = 100; sigmaInput.value = 120; }
+        else if(mat === 'mat4') { eInput.value = 110; sigmaInput.value = 800; }
+        else if(mat === 'mat5') { eInput.value = 160; sigmaInput.value = 200; }
+    }
+
+    const dict = {
+        en: {
+            title: "Structural Safety & Cost Calculator",
+            sub: "Professional Structural Analysis & Multi-Currency Cost Estimator",
+            lblMat: "Select Material Preset (UNS Standard ID):",
+            lblP: "Axial Force P (kN):",
+            lblL: "Member Length L (m):",
+            lblD: "Diameter D (mm):",
+            lblE: "Modulus of Elasticity E (GPa):",
+            lblSigmaY: "Yield Strength σy (MPa):",
+            btn: "Execute Structural & Financial Analysis",
+            mech: "Mechanical Responses",
+            cost: "Cost & Mass Estimate",
+            catalog: "📚 Enterprise Material Specification Catalog (UNS / EN Standards)",
+            wfTitle: "⚙️ Tech Stack & System Architecture"
+        },
+        tr: {
+            title: "Yapısal Güvenlik ve Maliyet Hesaplayıcı",
+            sub: "Profesyonel Yapısal Analiz ve Çoklu Para Birimli Maliyet Tahmini",
+            lblMat: "Malzeme Standart Kodunu Seçin (UNS ID):",
+            lblP: "Eksenel Kuvvet P (kN):",
+            lblL: "Eleman Uzunluğu L (m):",
+            lblD: "Çap D (mm):",
+            lblE: "Elastisite Modülü E (GPa):",
+            lblSigmaY: "Akma Dayanımı σy (MPa):",
+            btn: "Yapısal ve Finansal Analizi Çalıştır",
+            mech: "Mekanik Yanıtlar",
+            cost: "Maliyet ve Kütle Tahmini",
+            catalog: "📚 Kurumsal Malzeme Özellikleri Kataloğu (UNS / EN Standartları)",
+            wfTitle: "⚙️ Teknolojiler ve Sistem Mimarisi"
+        },
+        ar: {
+            title: "حاسبة السلامة الإنشائية والتقدير المالي",
+            sub: "برنامج التحليل الهندسي وتقييم التكلفة بالعملات المزدوجة",
+            lblMat: "اختر الكود المعياري للمادة (رمز UNS):",
+            lblP: "القوة المحورية P (kilonewton):",
+            lblL: "طول العنصر L (متر):",
+            lblD: "القطر D (ملم):",
+            lblE: "معامل المرونة E (جيجا باسكال):",
+            lblSigmaY: "إجهاد الخضوع σy (ميجا باسكال):",
+            btn: "إجراء التحليل الهندسي والمالي",
+            mech: "الاستجابة الميكانيكية",
+            cost: "تقدير التكلفة والكتلة",
+            catalog: "📚 كتالوج المعايير المعتمدة للمواد (المواصفات القياسية UNS / EN)",
+            wfTitle: "⚙️ التقنيات المستخدمة وبنية النظام"
+        }
+    };
+
+    function switchLanguage() {
+        const lang = document.getElementById('langSelect').value;
+        const d = dict[lang];
+
+        document.getElementById('txtTitle').innerText = d.title;
+        document.getElementById('txtSub').innerText = d.sub;
+        document.getElementById('lblMatSelect').innerText = d.lblMat;
+        document.getElementById('lblP').innerText = d.lblP;
+        document.getElementById('lblL').innerText = d.lblL;
+        document.getElementById('lblD').innerText = d.lblD;
+        document.getElementById('lblE').innerText = d.lblE;
+        document.getElementById('lblSigmaY').innerText = d.lblSigmaY;
+        document.getElementById('btnSubmit').innerText = d.btn;
+        document.getElementById('txtCatalogHeading').innerText = d.catalog;
+        document.getElementById('txtWorkflowHeading').innerText = d.wfTitle;
+
+        if(document.getElementById('txtMechHeading')) {
+            document.getElementById('txtMechHeading').innerText = d.mech;
+            document.getElementById('txtCostHeading').innerText = d.cost;
+        }
+
+        if(lang === 'ar') {
+            document.querySelector('.container').style.direction = 'rtl';
+        } else {
+            document.querySelector('.container').style.direction = 'ltr';
+        }
+    }
+</script>
+
 </body>
 </html>
