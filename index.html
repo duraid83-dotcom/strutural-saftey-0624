@@ -135,7 +135,7 @@
         .kpi-title { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
         .kpi-value { font-size: 20px; font-weight: 800; color: var(--text-main); margin-top: 4px; }
 
-        /* Left Panel - Control Form */
+        /* Panels */
         .panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--border);
@@ -199,7 +199,7 @@
 
         .btn-primary:hover { opacity: 0.9; }
 
-        /* Alarm / Safe Banners */
+        /* Banners */
         .banner-alarm {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid var(--danger);
@@ -224,7 +224,7 @@
             margin-bottom: 20px;
         }
 
-        /* Results Grid */
+        /* Results */
         .res-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -285,7 +285,7 @@
             background: var(--card-bg);
             border: 1px solid var(--border);
             color: var(--text-sub);
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
@@ -303,7 +303,7 @@
 </head>
 <body>
 
-<!-- Top Corporate Navigation -->
+<!-- Navigation Bar -->
 <header class="navbar">
     <div class="brand-logo">
         <div class="logo-box">A7</div>
@@ -332,27 +332,27 @@
 
 <div class="app-layout">
 
-    <!-- KPI Analytics Banner -->
+    <!-- KPI Banner -->
     <div class="kpi-row">
         <div class="kpi-card">
-            <div class="kpi-title" id="txtKpi1">Active Standard</div>
+            <div class="kpi-title">Active Standard</div>
             <div class="kpi-value" style="color: #60a5fa;">UNS / EN Norms</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-title" id="txtKpi2">FEA Engine</div>
+            <div class="kpi-title">FEA Engine</div>
             <div class="kpi-value" style="color: #34d399;">Python 3.12</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-title" id="txtKpi3">Current Exchange Rate</div>
+            <div class="kpi-title">Exchange Rate</div>
             <div class="kpi-value">1 USD = 35.0 TRY</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-title" id="txtKpi4">Safety Status</div>
+            <div class="kpi-title">Safety Status</div>
             <div class="kpi-value" id="kpiStatus" style="color: #9ca3af;">READY</div>
         </div>
     </div>
 
-    <!-- Left Control Panel (Form Inputs) -->
+    <!-- Left Form Controls -->
     <div class="panel">
         <div class="panel-header" id="txtPanelHeader">🎛️ Analysis Controls & Parameters</div>
         <form method="POST">
@@ -397,7 +397,7 @@
         </form>
     </div>
 
-    <!-- Right Dashboard Display Panel -->
+    <!-- Right Results Panel -->
     <div class="panel">
         <div class="panel-header" id="txtResultsHeader">📊 Simulation Outputs & Visualizer</div>
 
@@ -495,7 +495,7 @@
         {% endif %}
     </div>
 
-    <!-- Bottom Full Width Section: Catalog & Tech Stack -->
+    <!-- Catalog & Workflow Explanation -->
     <div style="grid-column: 1 / -1;" class="panel">
         <div class="panel-header" id="txtCatalogHeading">📚 Enterprise Material Specification Catalog (UNS / EN Standards)</div>
         <table class="data-table">
@@ -512,21 +512,25 @@
             <tbody>
                 <tr><td><b>MAT-01</b></td><td>UNS K02600 / 1.0038</td><td>Structural Steel (A36)</td><td>200</td><td>250</td><td>$2.50 / ₺87.5</td></tr>
                 <tr><td><b>MAT-02</b></td><td>UNS A96061 / 3.3211</td><td>Aluminum Alloy (6061-T6)</td><td>70</td><td>50</td><td>$4.80 / ₺168.0</td></tr>
-                <tr><td><b>MAT-03</b></td><td>UNS C36000 / 2.0375</td><td>Commercial Brass (C360)</td><td>100</td><td>120</td><td>$8.20 / ₺287.0</td></tr>
+                <tr><td><b>MAT-03</b></td><td>UNS C36000 / 2.0375</td><td>Commercial Brass (C360)</td><td>100</td><td>120</td><td>$8.20 / ₺87.5</td></tr>
                 <tr><td><b>MAT-04</b></td><td>UNS R56400 / 3.7165</td><td>Titanium Alloy (Grade 5)</td><td>110</td><td>800</td><td>$35.00 / ₺1225.0</td></tr>
                 <tr><td><b>MAT-05</b></td><td>UNS F10008 / 0.6025</td><td>Gray Cast Iron (Class 40)</td><td>160</td><td>200</td><td>$1.90 / ₺66.5</td></tr>
             </tbody>
         </table>
 
+        <!-- Workflow Paragraph -->
         <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
-            <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;" id="txtWorkflowHeading">⚙️ Enterprise System Stack & Architecture</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;" id="txtWorkflowHeading">⚙️ Architecture & Automated Workflow</div>
+            <p style="font-size: 12px; color: var(--text-sub); line-height: 1.6; margin-bottom: 12px;" id="txtWorkflowDesc">
+                This enterprise web application was engineered using Gemini AI for generating the underlying Python (Flask) mathematical FEA algorithms and client-side JavaScript financial calculators. The codebase is version-controlled in GitHub repositories and deployed via continuous integration on Vercel cloud servers.
+            </p>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <span class="badge">🐍 Python 3.12 (Flask Backend Engine)</span>
-                <span class="badge">⚡ Client JS Financial Computation</span>
-                <span class="badge">🎨 Modern Enterprise Dark Dashboard UI</span>
-                <span class="badge">📊 Chart.js 2D FEA Visualizer</span>
-                <span class="badge">☁️ Vercel Global Serverless Deployment</span>
-                <span class="badge">🐙 GitHub Pipeline Automation</span>
+                <span class="badge">🐍 Python 3.12 (Flask Engine)</span>
+                <span class="badge">⚡ Client JS Calculations</span>
+                <span class="badge">🎨 Enterprise Dark UI</span>
+                <span class="badge">📊 Chart.js FEA Visualizer</span>
+                <span class="badge">☁️ Vercel Cloud Hosting</span>
+                <span class="badge">🐙 GitHub CI/CD Pipeline</span>
             </div>
         </div>
     </div>
@@ -564,7 +568,8 @@
             mech: "Mechanical Response",
             cost: "Financial & Mass Estimation",
             catalog: "📚 Enterprise Material Specification Catalog (UNS / EN Standards)",
-            wfTitle: "⚙️ Enterprise System Stack & Architecture"
+            wfTitle: "⚙️ Architecture & Automated Workflow",
+            wfDesc: "This enterprise web application was engineered using Gemini AI for generating the underlying Python (Flask) mathematical FEA algorithms and client-side JavaScript financial calculators. The codebase is version-controlled in GitHub repositories and deployed via continuous integration on Vercel cloud servers."
         },
         tr: {
             panelHeader: "🎛️ Analiz Kontrolleri ve Parametreler",
@@ -579,7 +584,8 @@
             mech: "Mekanik Yanıtlar",
             cost: "Finansal ve Kütle Tahmini",
             catalog: "📚 Kurumsal Malzeme Özellikleri Kataloğu (UNS / EN Standartları)",
-            wfTitle: "⚙️ Kurumsal Sistem Mimarisi ve Teknolojiler"
+            wfTitle: "⚙️ Mimari ve Otomatik İş Akışı",
+            wfDesc: "Bu web uygulaması, Python (Flask) FEA hesaplama algoritmaları ve JavaScript maliyet hesaplayıcılarını oluşturmak için Gemini AI kullanılarak geliştirilmiştir. Kod tabanı GitHub üzerinde yönetilmekte ve Vercel bulut sunucuları üzerinden dağıtılmaktadır."
         },
         ar: {
             panelHeader: "🎛️ عناصر التحكم بالتحليل والمدخلات",
@@ -594,7 +600,8 @@
             mech: "الاستجابة الميكانيكية",
             cost: "التقدير المالي والكتلة",
             catalog: "📚 كتالوج المعايير المعتمدة للمواد (المواصفات القياسية UNS / EN)",
-            wfTitle: "⚙️ بنية النظام والتقنيات المستخدمة"
+            wfTitle: "⚙️ بنية النظام وآلية العمل البرمجي",
+            wfDesc: "تم تطوير هذا التطبيق باستخدام الذكاء الاصطناعي Gemini لبناء خوارزميات Python (Flask) الرياضية للتحليل الإنشائي وحاسبات JavaScript المالية. تم إدارة الكود عبر GitHub واستضافته ونشره تلقائياً على خوادم Vercel السحابية."
         }
     };
 
@@ -613,6 +620,7 @@
         document.getElementById('btnSubmit').innerText = d.btn;
         document.getElementById('txtCatalogHeading').innerText = d.catalog;
         document.getElementById('txtWorkflowHeading').innerText = d.wfTitle;
+        document.getElementById('txtWorkflowDesc').innerText = d.wfDesc;
 
         if(document.getElementById('txtMechHeading')) {
             document.getElementById('txtMechHeading').innerText = d.mech;
