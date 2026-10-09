@@ -3,248 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A7 Enterprise Suite | Structural & Financial Analysis</title>
+    <title>A7 Enterprise | Structural Safety & Cost Suite</title>
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f172a;
+            --bg-body: #0b0f19;
+            --panel-bg: #111827;
+            --card-bg: #1f2937;
+            --border: #374151;
             --accent: #2563eb;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-dark: #0f172a;
-            --border-color: #cbd5e1;
+            --accent-hover: #1d4ed8;
+            --text-main: #f9fafb;
+            --text-sub: #9ca3af;
+            --success: #10b981;
+            --danger: #ef4444;
         }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }
+
         body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             margin: 0; 
-            padding: 30px 15px; 
-            background-color: var(--bg-color); 
-            color: var(--text-dark);
+            padding: 0; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            min-height: 100vh;
         }
-        .container { 
-            max-width: 840px; 
-            margin: auto; 
-            background: var(--card-bg); 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-        }
-        .top-bar {
+
+        /* Corporate Navbar */
+        .navbar {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
         }
-        .header-tag {
-            background-color: #e0e7ff;
-            color: #3730a3;
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            font-weight: 800;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .brand-title {
+            font-size: 16px;
             font-weight: 700;
-            padding: 5px 12px;
+            color: var(--text-main);
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 11px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .controls { display: flex; gap: 10px; }
-        .controls select {
-            padding: 6px 10px; font-size: 12px; font-weight: 600;
-            border-radius: 6px; border: 1px solid var(--border-color); background: #fff; cursor: pointer;
-        }
-        h2 { margin: 0 0 6px 0; color: var(--primary); font-size: 26px; font-weight: 800; text-align: center; }
-        p.subtitle { margin: 0 0 25px 0; color: #64748b; font-size: 13px; text-align: center; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-group { display: flex; flex-direction: column; }
-        .full-width { grid-column: span 2; }
-        label { font-weight: 600; font-size: 12px; color: #334155; margin-bottom: 5px; }
-        input, select { 
-            width: 100%; padding: 10px; border: 1px solid var(--border-color); 
-            border-radius: 6px; box-sizing: border-box; font-size: 13px; background-color: #f8fafc;
-        }
-        button.submit-btn { 
-            width: 100%; padding: 12px; background-color: var(--accent); color: white; 
-            border: none; margin-top: 20px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer;
-        }
-        button.submit-btn:hover { background-color: #1d4ed8; }
-        .alarm { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 14px; border-radius: 6px; font-weight: 700; text-align: center; margin-top: 20px; }
-        .safe { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 14px; border-radius: 6px; font-weight: 700; text-align: center; margin-top: 20px; }
-        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .results-card { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .results-card h3 { margin-top: 0; font-size: 14px; color: var(--primary); border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
-        .result-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12px; }
-        .result-item:last-child { border-bottom: none; }
-        .plot-box { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-        .data-table th, .data-table td { border: 1px solid var(--border-color); padding: 8px; text-align: left; }
-        .data-table th { background-color: #f1f5f9; color: var(--primary); }
-        .catalog-section { margin-top: 25px; padding-top: 15px; border-top: 2px solid var(--border-color); }
-        .catalog-section h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 14px; }
-        
-        /* Tech Badges */
-        .tech-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-        .badge { background: #e2e8f0; color: #334155; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-        .badge-py { background: #fef08a; color: #854d0e; }
-        .badge-js { background: #fef08a; color: #713f12; }
-        .badge-html { background: #ffedd5; color: #9a3412; }
-        .badge-cloud { background: #e0f2fe; color: #0369a1; }
 
-        .footer { text-align: center; margin-top: 25px; font-size: 11px; color: #64748b; }
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-controls select {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* App Container Layout */
+        .app-layout {
+            max-width: 1280px;
+            margin: 25px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 960px) {
+            .app-layout { grid-template-columns: 1fr; }
+        }
+
+        /* KPI Banner */
+        .kpi-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        .kpi-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .kpi-title { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .kpi-value { font-size: 20px; font-weight: 800; color: var(--text-main); margin-top: 4px; }
+
+        /* Left Panel - Control Form */
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .panel-header {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 16px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 11px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            border: none;
+            padding: 13px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* Alarm / Safe Banners */
+        .banner-alarm {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .banner-safe {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Results Grid */
+        .res-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .res-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .res-card h4 {
+            margin: 0 0 12px 0;
+            font-size: 13px;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .res-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .res-row:last-child { border-bottom: none; }
+        .res-row span { color: var(--text-sub); }
+        .res-row strong { color: var(--text-main); }
+
+        /* Tables & Badges */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .data-table th {
+            background-color: var(--card-bg);
+            color: var(--text-sub);
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .badge {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-sub);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--text-sub);
+            font-size: 12px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="top-bar">
-        <span class="header-tag">A7 Enterprise Suite</span>
-        <div class="controls">
-            <select id="currSelect" onchange="updateCurrency()">
-                <option value="TRY">₺ TRY (Lira)</option>
-                <option value="USD">$ USD (Dollar)</option>
-            </select>
-            <select id="langSelect" onchange="switchLanguage()">
-                <option value="en">English 🇬🇧</option>
-                <option value="tr">Türkçe 🇹🇷</option>
-                <option value="ar">العربية 🇸🇦</option>
-            </select>
+<!-- Top Corporate Navigation -->
+<header class="navbar">
+    <div class="brand-logo">
+        <div class="logo-box">A7</div>
+        <div>
+            <div class="brand-title">A7 STRUCTURAL ENTERPRISE</div>
+            <div style="font-size: 10px; color: var(--text-sub);">FEA & Financial Safety Engine</div>
+        </div>
+    </div>
+    
+    <div class="nav-controls">
+        <div class="status-badge">
+            <div class="pulse-dot"></div>
+            <span>SYSTEM ONLINE</span>
+        </div>
+        <select id="currSelect" onchange="updateCurrency()">
+            <option value="TRY">₺ TRY (Lira)</option>
+            <option value="USD">$ USD (Dollar)</option>
+        </select>
+        <select id="langSelect" onchange="switchLanguage()">
+            <option value="en">English 🇬🇧</option>
+            <option value="tr">Türkçe 🇹🇷</option>
+            <option value="ar">العربية 🇸🇦</option>
+        </select>
+    </div>
+</header>
+
+<div class="app-layout">
+
+    <!-- KPI Analytics Banner -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-title" id="txtKpi1">Active Standard</div>
+            <div class="kpi-value" style="color: #60a5fa;">UNS / EN Norms</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title" id="txtKpi2">FEA Engine</div>
+            <div class="kpi-value" style="color: #34d399;">Python 3.12</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title" id="txtKpi3">Current Exchange Rate</div>
+            <div class="kpi-value">1 USD = 35.0 TRY</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title" id="txtKpi4">Safety Status</div>
+            <div class="kpi-value" id="kpiStatus" style="color: #9ca3af;">READY</div>
         </div>
     </div>
 
-    <h2 id="txtTitle">Structural Safety & Cost Calculator</h2>
-    <p class="subtitle" id="txtSub">Professional Structural Analysis & Multi-Currency Cost Estimator</p>
-
-    <form method="POST">
-        <div class="form-grid">
-            <div class="form-group full-width">
-                <label id="lblMatSelect">Select Material Preset (UNS Standard ID):</label>
+    <!-- Left Control Panel (Form Inputs) -->
+    <div class="panel">
+        <div class="panel-header" id="txtPanelHeader">🎛️ Analysis Controls & Parameters</div>
+        <form method="POST">
+            <div class="form-group">
+                <label id="lblMatSelect">Material Grade Preset (UNS Catalog):</label>
                 <select id="materialSelect" onchange="autoFillMaterial()">
                     <option value="custom">-- Custom Material Properties --</option>
-                    <option value="mat1">MAT-01 | UNS K02600 / EN 1.0038 (Structural Steel A36)</option>
-                    <option value="mat2">MAT-02 | UNS A96061 / EN 3.3211 (Aluminum 6061-T6)</option>
-                    <option value="mat3">MAT-03 | UNS C36000 / EN 2.0375 (Commercial Brass C360)</option>
-                    <option value="mat4">MAT-04 | UNS R56400 / EN 3.7165 (Titanium Grade 5)</option>
-                    <option value="mat5">MAT-05 | UNS F10008 / EN 0.6025 (Gray Cast Iron Class 40)</option>
+                    <option value="mat1">MAT-01 | UNS K02600 (Structural Steel A36)</option>
+                    <option value="mat2">MAT-02 | UNS A96061 (Aluminum 6061-T6)</option>
+                    <option value="mat3">MAT-03 | UNS C36000 (Commercial Brass C360)</option>
+                    <option value="mat4">MAT-04 | UNS R56400 (Titanium Grade 5)</option>
+                    <option value="mat5">MAT-05 | UNS F10008 (Gray Cast Iron Class 40)</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
-                <label id="lblP">Axial Force P (kN):</label>
+                <label id="lblP">Axial Load P (kN):</label>
                 <input type="number" step="any" name="P" required placeholder="e.g. 50" value="{{ results.P if results }}">
             </div>
+
             <div class="form-group">
                 <label id="lblL">Member Length L (m):</label>
                 <input type="number" step="any" name="L" required placeholder="e.g. 2.0" value="{{ results.L if results }}">
             </div>
+
             <div class="form-group">
-                <label id="lblD">Diameter D (mm):</label>
+                <label id="lblD">Section Diameter D (mm):</label>
                 <input type="number" step="any" name="D" required placeholder="e.g. 20" value="{{ results.D if results }}">
             </div>
+
             <div class="form-group">
                 <label id="lblE">Modulus of Elasticity E (GPa):</label>
                 <input type="number" step="any" id="inputE" name="E" required placeholder="e.g. 200" value="{{ results.E if results }}">
             </div>
-            <div class="form-group full-width">
+
+            <div class="form-group">
                 <label id="lblSigmaY">Yield Strength σy (MPa):</label>
                 <input type="number" step="any" id="inputSigmaY" name="sigma_y" required placeholder="e.g. 250" value="{{ results.sigma_y if results }}">
             </div>
-        </div>
-        
-        <button type="submit" class="submit-btn" id="btnSubmit">Execute Structural & Financial Analysis</button>
-    </form>
 
-    {% if results %}
-        {% if results.alarm %}
-            <div class="alarm" id="txtAlarm">🚨 ALARM: YIELDING DETECTED! STRUCTURAL FAILURE IMMINENT! 🚨</div>
-        {% else %}
-            <div class="safe" id="txtSafe">✅ Structure is Safe under Design Axial Load.</div>
-        {% endif %}
+            <button type="submit" class="btn-primary" id="btnSubmit">RUN SIMULATION & COST ANALYSIS</button>
+        </form>
+    </div>
 
-        <div class="results-grid">
-            <div class="results-card">
-                <h3 id="txtMechHeading">Mechanical Responses</h3>
-                <div class="result-item"><span id="txtArea">Area (A):</span> <strong>{{ results.A }} mm²</strong></div>
-                <div class="result-item"><span id="txtStress">Axial Stress (σ):</span> <strong>{{ results.sigma }} MPa</strong></div>
-                <div class="result-item"><span id="txtStrain">Axial Strain (ε):</span> <strong>{{ results.epsilon }} mm/mm</strong></div>
-                <div class="result-item"><span id="txtDef">Deformation (ΔL):</span> <strong>{{ results.delta_L }} mm</strong></div>
-                <div class="result-item"><span id="txtSF">Safety Factor (FOS):</span> <strong id="valFOS">0.00</strong></div>
+    <!-- Right Dashboard Display Panel -->
+    <div class="panel">
+        <div class="panel-header" id="txtResultsHeader">📊 Simulation Outputs & Visualizer</div>
+
+        {% if results %}
+            {% if results.alarm %}
+                <div class="banner-alarm" id="txtAlarm">🚨 ALARM: STRUCTURAL FAILURE DETECTED! YIELD LIMIT EXCEEDED!</div>
+            {% else %}
+                <div class="banner-safe" id="txtSafe">✅ STRUCTURAL INTEGRITY VERIFIED (SAFE DESIGN)</div>
+            {% endif %}
+
+            <div class="res-grid">
+                <div class="res-card">
+                    <h4 id="txtMechHeading">Mechanical Response</h4>
+                    <div class="res-row"><span id="txtArea">Area (A):</span> <strong>{{ results.A }} mm²</strong></div>
+                    <div class="res-row"><span id="txtStress">Stress (σ):</span> <strong>{{ results.sigma }} MPa</strong></div>
+                    <div class="res-row"><span id="txtStrain">Strain (ε):</span> <strong>{{ results.epsilon }}</strong></div>
+                    <div class="res-row"><span id="txtDef">Deformation (ΔL):</span> <strong>{{ results.delta_L }} mm</strong></div>
+                    <div class="res-row"><span>Factor of Safety (FOS):</span> <strong id="valFOS">0.00</strong></div>
+                </div>
+
+                <div class="res-card">
+                    <h4 id="txtCostHeading">Financial & Mass Estimation</h4>
+                    <div class="res-row"><span>Volume (V):</span> <strong id="valVolume">0.00</strong> cm³</div>
+                    <div class="res-row"><span>Material Density:</span> <strong>7,850 kg/m³</strong></div>
+                    <div class="res-row"><span>Total Mass:</span> <strong id="valMass">0.00</strong> kg</div>
+                    <div class="res-row"><span>Est. Material Cost:</span> <strong id="valCost" style="color: #60a5fa;">₺0.00</strong></div>
+                </div>
             </div>
 
-            <div class="results-card">
-                <h3 id="txtCostHeading">Cost & Mass Estimate</h3>
-                <div class="result-item"><span id="txtVol">Total Volume (V):</span> <strong id="valVolume">0.00</strong> cm³</div>
-                <div class="result-item"><span id="txtDensity">Est. Density:</span> <strong>7,850 kg/m³</strong></div>
-                <div class="result-item"><span id="txtMass">Total Mass (W):</span> <strong id="valMass">0.00</strong> kg</div>
-                <div class="result-item"><span id="txtCost">Est. Cost:</span> <strong id="valCost" style="color: #2563eb;">₺0.00</strong></div>
+            <div style="background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+                <div style="font-size: 12px; font-weight: 700; color: var(--text-sub); text-align: center; margin-bottom: 10px;" id="txtGraphTitle">MEMBER DEFORMATION PROFILE</div>
+                <canvas id="deformationChart"></canvas>
             </div>
-        </div>
 
-        <div class="plot-box">
-            <h3 style="text-align: center; margin-top: 0; font-size: 14px; color: #334155;" id="txtGraphTitle">2D Deformation Profile</h3>
-            <canvas id="deformationChart"></canvas>
-        </div>
+            <script>
+                const originalLength = {{ results.L }} * 1000;
+                const deltaL = {{ results.delta_L }};
+                const deformedLength = originalLength + deltaL;
+                const isAlarm = {{ 'true' if results.alarm else 'false' }};
 
-        <script>
-            // Plot Logic
-            const originalLength = {{ results.L }} * 1000;
-            const deltaL = {{ results.delta_L }};
-            const deformedLength = originalLength + deltaL;
-            const isAlarm = {{ 'true' if results.alarm else 'false' }};
+                const ctx = document.getElementById('deformationChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            { label: 'Initial Member', data: [{x: 0, y: 1}, {x: originalLength, y: 1}], borderColor: '#9ca3af', borderWidth: 4, showLine: true },
+                            { label: 'Deformed Member', data: [{x: 0, y: 0.5}, {x: deformedLength, y: 0.5}], borderColor: isAlarm ? '#ef4444' : '#10b981', borderWidth: 4, showLine: true }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            x: { type: 'linear', position: 'bottom', ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                            y: { display: false, min: 0, max: 1.5 }
+                        },
+                        plugins: { legend: { labels: { color: '#f9fafb' } } }
+                    }
+                });
 
-            const ctx = document.getElementById('deformationChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: [
-                        { label: 'Original', data: [{x: 0, y: 1}, {x: originalLength, y: 1}], borderColor: '#94a3b8', borderWidth: 6, showLine: true },
-                        { label: 'Deformed', data: [{x: 0, y: 0.5}, {x: deformedLength, y: 0.5}], borderColor: isAlarm ? '#dc2626' : '#16a34a', borderWidth: 6, showLine: true }
-                    ]
-                },
-                options: {
-                    scales: {
-                        x: { type: 'linear', position: 'bottom', title: { display: true, text: 'Member Length (mm)' } },
-                        y: { display: false, min: 0, max: 1.5 }
+                const A_mm2 = {{ results.A }};
+                const L_m = {{ results.L }};
+                const sigma = Math.abs({{ results.sigma }});
+                const sigma_y = {{ results.sigma_y }};
+                
+                const fos = sigma > 0 ? (sigma_y / sigma) : 0;
+                document.getElementById('valFOS').innerText = fos.toFixed(2) + (fos >= 1 ? ' (SAFE)' : ' (CRITICAL)');
+                document.getElementById('valFOS').style.color = fos >= 1 ? '#10b981' : '#ef4444';
+                
+                document.getElementById('kpiStatus').innerText = fos >= 1 ? 'SAFE (PASS)' : 'CRITICAL (FAIL)';
+                document.getElementById('kpiStatus').style.color = fos >= 1 ? '#10b981' : '#ef4444';
+
+                const volume_cm3 = (A_mm2 * (L_m * 1000)) / 1000;
+                const mass_kg = (volume_cm3 * 7.85) / 1000;
+                let cost_usd = mass_kg * 2.85;
+                let cost_try = cost_usd * 35.0;
+
+                document.getElementById('valVolume').innerText = volume_cm3.toFixed(2);
+                document.getElementById('valMass').innerText = mass_kg.toFixed(2);
+
+                function updateCurrency() {
+                    const curr = document.getElementById('currSelect').value;
+                    if(curr === 'TRY') {
+                        document.getElementById('valCost').innerText = '₺' + cost_try.toFixed(2) + ' TRY';
+                    } else {
+                        document.getElementById('valCost').innerText = '$' + cost_usd.toFixed(2) + ' USD';
                     }
                 }
-            });
+                updateCurrency();
+            </script>
+        {% else %}
+            <div style="text-align: center; padding: 60px 20px; color: var(--text-sub);">
+                <div style="font-size: 40px; margin-bottom: 10px;">⚡</div>
+                <div style="font-size: 14px; font-weight: 600;">System Ready for Simulation</div>
+                <div style="font-size: 12px; margin-top: 5px;">Enter structural parameters on the left panel to trigger FEA solver.</div>
+            </div>
+        {% endif %}
+    </div>
 
-            // Financial & Mass Computations
-            const A_mm2 = {{ results.A }};
-            const L_m = {{ results.L }};
-            const sigma = Math.abs({{ results.sigma }});
-            const sigma_y = {{ results.sigma_y }};
-            
-            // FOS Calculation
-            const fos = sigma > 0 ? (sigma_y / sigma) : 0;
-            document.getElementById('valFOS').innerText = fos.toFixed(2) + (fos >= 1 ? ' (Safe)' : ' (Unsafe)');
-            document.getElementById('valFOS').style.color = fos >= 1 ? '#16a34a' : '#dc2626';
-
-            const volume_cm3 = (A_mm2 * (L_m * 1000)) / 1000;
-            const density_g_cm3 = 7.85; 
-            const mass_kg = (volume_cm3 * density_g_cm3) / 1000;
-            
-            let cost_usd = mass_kg * 2.85;
-            let cost_try = cost_usd * 35.0;
-
-            document.getElementById('valVolume').innerText = volume_cm3.toFixed(2);
-            document.getElementById('valMass').innerText = mass_kg.toFixed(2);
-
-            function updateCurrency() {
-                const curr = document.getElementById('currSelect').value;
-                if(curr === 'TRY') {
-                    document.getElementById('valCost').innerText = '₺' + cost_try.toFixed(2) + ' TRY';
-                } else {
-                    document.getElementById('valCost').innerText = '$' + cost_usd.toFixed(2) + ' USD';
-                }
-            }
-            updateCurrency();
-        </script>
-    {% endif %}
-
-    <!-- Material Catalog Section -->
-    <div class="catalog-section">
-        <h4 id="txtCatalogHeading">📚 Enterprise Material Specification Catalog (UNS / EN Standards)</h4>
+    <!-- Bottom Full Width Section: Catalog & Tech Stack -->
+    <div style="grid-column: 1 / -1;" class="panel">
+        <div class="panel-header" id="txtCatalogHeading">📚 Enterprise Material Specification Catalog (UNS / EN Standards)</div>
         <table class="data-table">
             <thead>
                 <tr>
@@ -264,28 +517,25 @@
                 <tr><td><b>MAT-05</b></td><td>UNS F10008 / 0.6025</td><td>Gray Cast Iron (Class 40)</td><td>160</td><td>200</td><td>$1.90 / ₺66.5</td></tr>
             </tbody>
         </table>
-    </div>
 
-    <!-- Tech Stack & Workflow Section -->
-    <div class="catalog-section">
-        <h4 id="txtWorkflowHeading">⚙️ Tech Stack & System Architecture</h4>
-        <p style="font-size: 12px; color: #475569; line-height: 1.6; margin-bottom: 8px;" id="txtWorkflowContent">
-            Built using a full-stack engineering workflow: Python Flask for math engines, client-side JavaScript for calculations & Charts, version-controlled via GitHub, and auto-deployed on Vercel.
-        </p>
-        <div class="tech-badges">
-            <span class="badge badge-py">🐍 Python 3 (Flask Backend)</span>
-            <span class="badge badge-js">⚡ JavaScript (ES6+ Engine)</span>
-            <span class="badge badge-html">🎨 HTML5 / CSS3 Responsive UI</span>
-            <span class="badge">📊 Chart.js (2D Visualizer)</span>
-            <span class="badge badge-cloud">☁️ Vercel Serverless Hosting</span>
-            <span class="badge">🐙 GitHub CI/CD Pipeline</span>
+        <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;" id="txtWorkflowHeading">⚙️ Enterprise System Stack & Architecture</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span class="badge">🐍 Python 3.12 (Flask Backend Engine)</span>
+                <span class="badge">⚡ Client JS Financial Computation</span>
+                <span class="badge">🎨 Modern Enterprise Dark Dashboard UI</span>
+                <span class="badge">📊 Chart.js 2D FEA Visualizer</span>
+                <span class="badge">☁️ Vercel Global Serverless Deployment</span>
+                <span class="badge">🐙 GitHub Pipeline Automation</span>
+            </div>
         </div>
     </div>
 
-    <div class="footer">
-        A7 Engineering Group © 2026 — Multi-Language FEA & Structural Safety Calculator
-    </div>
 </div>
+
+<footer class="footer">
+    A7 Engineering Group © 2026 — Enterprise Structural Analysis & Financial Platform
+</footer>
 
 <script>
     function autoFillMaterial() {
@@ -302,49 +552,49 @@
 
     const dict = {
         en: {
-            title: "Structural Safety & Cost Calculator",
-            sub: "Professional Structural Analysis & Multi-Currency Cost Estimator",
-            lblMat: "Select Material Preset (UNS Standard ID):",
-            lblP: "Axial Force P (kN):",
+            panelHeader: "🎛️ Analysis Controls & Parameters",
+            resHeader: "📊 Simulation Outputs & Visualizer",
+            lblMat: "Material Grade Preset (UNS Catalog):",
+            lblP: "Axial Load P (kN):",
             lblL: "Member Length L (m):",
-            lblD: "Diameter D (mm):",
+            lblD: "Section Diameter D (mm):",
             lblE: "Modulus of Elasticity E (GPa):",
             lblSigmaY: "Yield Strength σy (MPa):",
-            btn: "Execute Structural & Financial Analysis",
-            mech: "Mechanical Responses",
-            cost: "Cost & Mass Estimate",
+            btn: "RUN SIMULATION & COST ANALYSIS",
+            mech: "Mechanical Response",
+            cost: "Financial & Mass Estimation",
             catalog: "📚 Enterprise Material Specification Catalog (UNS / EN Standards)",
-            wfTitle: "⚙️ Tech Stack & System Architecture"
+            wfTitle: "⚙️ Enterprise System Stack & Architecture"
         },
         tr: {
-            title: "Yapısal Güvenlik ve Maliyet Hesaplayıcı",
-            sub: "Profesyonel Yapısal Analiz ve Çoklu Para Birimli Maliyet Tahmini",
-            lblMat: "Malzeme Standart Kodunu Seçin (UNS ID):",
-            lblP: "Eksenel Kuvvet P (kN):",
+            panelHeader: "🎛️ Analiz Kontrolleri ve Parametreler",
+            resHeader: "📊 Simülasyon Çıktıları ve Görselleştirici",
+            lblMat: "Malzeme Kalitesi Seçin (UNS ID):",
+            lblP: "Eksenel Yük P (kN):",
             lblL: "Eleman Uzunluğu L (m):",
-            lblD: "Çap D (mm):",
+            lblD: "Kesit Çapı D (mm):",
             lblE: "Elastisite Modülü E (GPa):",
             lblSigmaY: "Akma Dayanımı σy (MPa):",
-            btn: "Yapısal ve Finansal Analizi Çalıştır",
+            btn: "SİMÜLASYON VE MALİYET ANALİZİNİ ÇALIŞTIR",
             mech: "Mekanik Yanıtlar",
-            cost: "Maliyet ve Kütle Tahmini",
+            cost: "Finansal ve Kütle Tahmini",
             catalog: "📚 Kurumsal Malzeme Özellikleri Kataloğu (UNS / EN Standartları)",
-            wfTitle: "⚙️ Teknolojiler ve Sistem Mimarisi"
+            wfTitle: "⚙️ Kurumsal Sistem Mimarisi ve Teknolojiler"
         },
         ar: {
-            title: "حاسبة السلامة الإنشائية والتقدير المالي",
-            sub: "برنامج التحليل الهندسي وتقييم التكلفة بالعملات المزدوجة",
-            lblMat: "اختر الكود المعياري للمادة (رمز UNS):",
-            lblP: "القوة المحورية P (kilonewton):",
+            panelHeader: "🎛️ عناصر التحكم بالتحليل والمدخلات",
+            resHeader: "📊 مخرجات المحاكاة والمنحنيات البيانية",
+            lblMat: "اختر درجة المادة (المواصفة القياسية UNS):",
+            lblP: "الحمل المحوري P (كيلو نيوتن):",
             lblL: "طول العنصر L (متر):",
-            lblD: "القطر D (ملم):",
+            lblD: "قطر المقطع D (ملم):",
             lblE: "معامل المرونة E (جيجا باسكال):",
             lblSigmaY: "إجهاد الخضوع σy (ميجا باسكال):",
-            btn: "إجراء التحليل الهندسي والمالي",
+            btn: "تشغيل المحاكاة والتحليل المالي",
             mech: "الاستجابة الميكانيكية",
-            cost: "تقدير التكلفة والكتلة",
+            cost: "التقدير المالي والكتلة",
             catalog: "📚 كتالوج المعايير المعتمدة للمواد (المواصفات القياسية UNS / EN)",
-            wfTitle: "⚙️ التقنيات المستخدمة وبنية النظام"
+            wfTitle: "⚙️ بنية النظام والتقنيات المستخدمة"
         }
     };
 
@@ -352,8 +602,8 @@
         const lang = document.getElementById('langSelect').value;
         const d = dict[lang];
 
-        document.getElementById('txtTitle').innerText = d.title;
-        document.getElementById('txtSub').innerText = d.sub;
+        document.getElementById('txtPanelHeader').innerText = d.panelHeader;
+        document.getElementById('txtResultsHeader').innerText = d.resHeader;
         document.getElementById('lblMatSelect').innerText = d.lblMat;
         document.getElementById('lblP').innerText = d.lblP;
         document.getElementById('lblL').innerText = d.lblL;
@@ -370,9 +620,9 @@
         }
 
         if(lang === 'ar') {
-            document.querySelector('.container').style.direction = 'rtl';
+            document.querySelector('.app-layout').style.direction = 'rtl';
         } else {
-            document.querySelector('.container').style.direction = 'ltr';
+            document.querySelector('.app-layout').style.direction = 'ltr';
         }
     }
 </script>
